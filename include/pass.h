@@ -1,15 +1,14 @@
 #include <GLFW/glfw3.h>
 
+// FBO 내부의 텍스처 id를 들고 있는 이유 -> 쉐이더 프로그램에서 써야하기 때문에.
+
 typedef struct geometry_pass_
 {
 	GLuint shader_program; // vertex shader + fragment shader
 	GLuint g_buffer; // G-Buffer (FBO)
 	GLuint g_buffer_position; // 2D texture
-		// 어차피 lighting pass에서는 사용 안 할텐데...저장해야하나?
 	GLuint g_buffer_albedo; // 2D texture
 	GLuint g_buffer_normal; // 2D texture
-	GLuint g_buffer_depth; // render buffer
-		// render buffer의 id까지 저장할 필요가 있을까?
 } geometry_pass;
 
 typedef struct lighting_pass_
