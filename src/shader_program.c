@@ -12,20 +12,21 @@ static int read_file(const char *path, char **out)
         return (-1);
     }
 
-    size_t size = ftell(file); // 파일 크기 확인
-    rewind(file); // 파일 포인터를 시작점으로 되돌림
+    fseek(file, 0, SEEK_END);
+    long size = ftell(file); // 파일 크기 확인
+    fseek(file, 0, SEEK_SET);  // 파일 포인터를 시작점으로 되돌림
 
     *out = (char *)malloc(size + 1);
-    fread(out, sizeof(char), size, file);
+    fread(*out, sizeof(char), size, file);
     (*out)[size] = '\0';
     
     fclose(file);
     return (0);
 }
 
-static int compile_shader(GLuint *shader, char *source)
+static int compile_shader(GLuint *shader, char *source, int type)
 {
-    *shader = glCreateShader(GL_VERTEX_SHADER);
+    *shader = glCreateShader(type);
     glShaderSource(*shader, 1, (const GLchar **)&source, NULL);
     glCompileShader(*shader);
     free(source);
@@ -50,10 +51,10 @@ int shader_program(GLuint *program, const char *vs_path, const char *fs_path)
     if (vs_path)
     {
         read_file(vs_path, &vs_source);
-        compile_shader(&vs_shader, vs_source);
+        compile_shader(&vs_shader, vs_source, GL_VERTEX_SHADER);
     }
     read_file(fs_path, &fs_source);
-    compile_shader(&fs_shader, fs_source);
+    compile_shader(&fs_shader, fs_source, GL_FRAGMENT_SHADER);
 
     // 프로그램 생성, 링크
     *program = glCreateProgram();
