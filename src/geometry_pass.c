@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "pass.h"
+#include "shader.h"
 #include "settings.h"
 
 /*
@@ -12,13 +13,20 @@
 int init_geometry_pass(geometry_pass *g_pass)
 {
     // 쉐이더 프로그램
-    if (shader_program(&g_pass->shader_program, \
-                    "./src/shader/geometry.vs", \
-                    "./src/shader/geometry.fs") == -1)
+    GLuint vs, fs;
+    compile_shader(&vs, "./src/shader/geometry.vs", GL_VERTEX_SHADER);
+    compile_shader(&fs, "./src/shader/geometry.fs", GL_FRAGMENT_SHADER);
+    if (link_shaders(&g_pass->shader_program, vs, fs) == -1)
 	{
 		fprintf(stderr, "Something wrong during make shader program\n");
 		return (-1);
 	}
+	// 프로그램의 변수에 FBO의 첨부물을 연결한다
+	// 현재 바인딩되어있는 FBO의 첨부물이 순서대로 위치, 노말, 알베도이므로 0, 1, 2번째에 그대로 
+	glBindFragDataLocation(g_pass->shader_program, 0, "g_position");
+	glBindFragDataLocation(g_pass->shader_program, 1, "g_normal");
+	glBindFragDataLocation(g_pass->shader_program, 2, "g_albedo");
+
 
 	// FBO (G-buffer) 생성 및 바인딩.
 	// FBO에는 texture 혹은 renderBuffer 객체를 연결할 수 있음
@@ -60,12 +68,6 @@ int init_geometry_pass(geometry_pass *g_pass)
         printf("Framebuffer is not complete");
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // 기본 프레임 버퍼로 복원
-
-	// 프로그램의 변수에 FBO의 첨부물을 연결한다
-	// 현재 바인딩되어있는 FBO의 첨부물이 순서대로 위치, 노말, 알베도이므로 0, 1, 2번째에 그대로 
-	glBindFragDataLocation(g_pass->shader_program, 0, "g_position");
-	glBindFragDataLocation(g_pass->shader_program, 1, "g_normal");
-	glBindFragDataLocation(g_pass->shader_program, 2, "g_albedo");
 
 	return (0);
 }
