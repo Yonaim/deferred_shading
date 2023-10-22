@@ -24,8 +24,11 @@ static int read_file(const char *path, char **out)
     return (0);
 }
 
-static int compile_shader(GLuint *shader, char *source, int type)
+int compile_shader(GLuint *shader, char *path, int type)
 {
+    char *source;
+    read_file(path, &source);
+
     *shader = glCreateShader(type);
     glShaderSource(*shader, 1, (const GLchar **)&source, NULL);
     glCompileShader(*shader);
@@ -43,24 +46,11 @@ static int compile_shader(GLuint *shader, char *source, int type)
     return (0);
 }
 
-int shader_program(GLuint *program, const char *vs_path, const char *fs_path)
+int link_shaders(GLuint *program, GLuint vs, GLuint fs)
 {
-    char *vs_source, *fs_source;
-    GLuint vs_shader, fs_shader;
-
-    if (vs_path)
-    {
-        read_file(vs_path, &vs_source);
-        compile_shader(&vs_shader, vs_source, GL_VERTEX_SHADER);
-    }
-    read_file(fs_path, &fs_source);
-    compile_shader(&fs_shader, fs_source, GL_FRAGMENT_SHADER);
-
-    // 프로그램 생성, 링크
     *program = glCreateProgram();
-    if (vs_path)
-        glAttachShader(*program, vs_shader);
-    glAttachShader(*program, fs_shader);
+    glAttachShader(*program, vs);
+    glAttachShader(*program, fs);
     glLinkProgram(*program);
 
     // 에러 체크
@@ -72,10 +62,7 @@ int shader_program(GLuint *program, const char *vs_path, const char *fs_path)
         fprintf(stderr, "쉐이더 프로그램 링크 에러: %s\n", infoLog);
         return (-1);
     }
-
-    if (vs_path)
-        glDeleteShader(vs_shader);
-    glDeleteShader(fs_shader);
-
+    glDeleteShader(vs);
+    glDeleteShader(fs);
     return (0);
 }
