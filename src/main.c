@@ -9,11 +9,8 @@
 
 #include "linalg.h"
 #include "pass.h"
-
-#define WIN_WIDTH 800
-#define WIN_HEIGHT 600
-
-int shader_program(GLuint *program, const char *vs_path, const char *fs_path);
+#include "vao.h"
+#include "settings.h"
 
 int start_opengl(GLFWwindow **window_ptr)
 {
@@ -29,125 +26,16 @@ int start_opengl(GLFWwindow **window_ptr)
 	glfwMakeContextCurrent(*window_ptr);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		return (-1);
-	return (0);
-}
-
-void init_vertices_cube(float *vertices_ptr[])
-{
-	float vertices[] = {
-	// 위치					// 법선벡터
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-	};
-
-	*vertices_ptr = malloc(sizeof(vertices));
-	memcpy(*vertices_ptr, vertices, sizeof(vertices));
-}
-
-/*
-1. 쉐이더 프로그램 컴파일
-2. G-Buffer 생성 (position, normal, albedo, depth)
-*/
-int init_geometry_pass(geometry_pass *g_pass)
-{
-    // 쉐이더 프로그램
-    if (shader_program(g_pass->shader_program, \
-                    "./shader/geometry.vs", \
-                    "./shader/geometry.fs") == -1)
-	{
-		fprintf(stderr, "Something wrong during make shader program");
-		return (-1);
-	}
-
-	// FBO (G-buffer) 생성 및 바인딩.
-	// FBO에는 texture 혹은 renderBuffer 객체를 연결할 수 있음
-    glGenFramebuffers(1, &g_pass->g_buffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, g_pass->g_buffer);
-
-    // gPosition 텍스처 생성 및 첨부
-    glGenTextures(1, &g_pass->g_buffer_position);
-    glBindTexture(GL_TEXTURE_2D, g_pass->g_buffer_position);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIN_WIDTH, WIN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_pass->g_buffer_position, 0);
-
-    // gNormal 텍스처 생성 및 첨부
-    glGenTextures(1, &g_pass->g_buffer_normal);
-    glBindTexture(GL_TEXTURE_2D, g_pass->g_buffer_normal);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIN_WIDTH, WIN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g_pass->g_buffer_normal, 0);
-
-    // gAlbedo 텍스처 생성 및 첨부
-    glGenTextures(1, &g_pass->g_buffer_albedo);
-    glBindTexture(GL_TEXTURE_2D, g_pass->g_buffer_albedo);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIN_WIDTH, WIN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, g_pass->g_buffer_albedo, 0);
-
-    // G-Buffer에 깊이 버퍼 첨부 (텍스처가 아닌 RenderBuffer이다.)
-    glGenRenderbuffers(1, &g_pass->g_buffer_depth);
-    glBindRenderbuffer(GL_RENDERBUFFER, g_pass->g_buffer_depth);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WIN_WIDTH, WIN_HEIGHT);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, g_pass->g_buffer_depth);
-
-    // G-Buffer에 사용될 color attachment 목록 설정
-    // RenderBuffer는 알릴 필요가 없다.
-    GLuint attachments[3] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
-    glDrawBuffers(3, attachments);
-
-    // 첨부 완료 후 FBO 상태 확인
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        printf("Framebuffer is not complete");
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); // 기본 프레임 버퍼로 복원
 
 	return (0);
 }
 
-/*
+/* 
 1차 패스(geometry pass)에서 G-buffer를 채우고
 2차 패스(lighting pass)에서 G-buffer의 내용물을 이용해 lighting을 한다. (익숙한 퐁 라이팅을 사용)
 
-렌더링 루프:
-    1. geometry pass: render all geometric/color data to g-buffer 
-    2. lighting pass: use g-buffer to calculate the scene's lighting
+렌더링 루프에 진입하기 전 초기화 작업으로서 각 pass에 필요한 FBO와
+해당 FBO에 대한 첨부 대상물(attachments)를 구성하고, 필요한 모든 텍스처를 연결해둔다.
 */
 int main()
 {
@@ -155,16 +43,77 @@ int main()
 	if (start_opengl(&window) == -1)
 		return (-1);
 
-	float *vertices;
-	init_vertices_cube(&vertices);
-
     geometry_pass g_pass;
     init_geometry_pass(&g_pass);
 
-	// lighting pass 초기화
+    lighting_pass l_pass;
+    init_lighting_pass(&l_pass);
 
-    // 기본값 세팅
-	
-    // 렌더링 루프
-    // ...
+	GLuint cube_vao;
+	init_vao_cube(&cube_vao);
+
+	GLuint quad_vao;
+    init_vao_quad(&quad_vao);
+
+	float model_v[16];
+	float view_v[16];
+	float proj_v[16];
+
+// 렌더링 루프
+	// 각 VAO들이 기하 패스를 모두 거치게끔 하여 g-buffer에 데이터를 쌓은 후 라이팅 패스를 거치도록한다
+	// geometry pass는 각 오브젝트 별로 한번씩 수행, 최상단 픽셀에 대한 정보가 모아졌으니 lighting pass는 한번만 수행
+    while (!glfwWindowShouldClose(window))
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClearColor(0.0, 0.0, 1.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+// 지오메트리 패스
+        glBindFramebuffer(GL_FRAMEBUFFER, g_pass.fbo);
+        glUseProgram(g_pass.shader_program);
+        // uniform 설정
+		model(model_v, vec3(0, 0, 0), vec3(0, 0, 0), vec3(1, 1, 1)); 
+		view(view_v, vec3(0, 0, -3), vec3(0, 0, -1)); 
+		projection(proj_v, 1, 0.1, 100); 
+		glUniformMatrix4fv(glGetUniformLocation(g_pass.shader_program, "model"), 1, GL_FALSE, model_v);
+		glUniformMatrix4fv(glGetUniformLocation(g_pass.shader_program, "view"), 1, GL_FALSE, view_v);
+		glUniformMatrix4fv(glGetUniformLocation(g_pass.shader_program, "projection"), 1, GL_FALSE, proj_v);
+        // vao 바인드
+		glBindVertexArray(cube_vao);	
+		// fbo에 draw
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+// 라이팅 패스
+        glBindFramebuffer(GL_FRAMEBUFFER, 0); // 일단 디폴트 프레임 버퍼에 그림
+        glUseProgram(l_pass.shader_program);
+
+        // uniform 설정
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, g_pass.fbo_position);
+        glUniform1i(glGetUniformLocation(l_pass.shader_program, "g_position"), 0);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, g_pass.fbo_normal);
+        glUniform1i(glGetUniformLocation(l_pass.shader_program, "g_normal"), 1);
+        
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, g_pass.fbo_albedo);
+        glUniform1i(glGetUniformLocation(l_pass.shader_program, "g_albedo"), 2);
+
+        glUniform3f(glGetUniformLocation(l_pass.shader_program, "ambient"), 0, 0, 0);
+		glUniform3f(glGetUniformLocation(l_pass.shader_program, "camera_pos"), 0, 0, 0);
+		glUniform3f(glGetUniformLocation(l_pass.shader_program, "light_pos"), 0, 0, 0);
+		glUniform3f(glGetUniformLocation(l_pass.shader_program, "light_color"), 1, 1, 1);
+
+        // vao 바인드
+        glBindVertexArray(quad_vao);
+		// fbo에 draw
+		// 디폴트 프레임버퍼 그 자체가 창이므로 draw하기만 하면 끝 (별도의 함수호출필요x)
+		glDrawArrays(GL_TRIANGLES, 0, 12);
+
+        // 프레임 스와핑 및 이벤트 처리
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+    }
+	glfwTerminate();
 }
