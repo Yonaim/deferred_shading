@@ -16,15 +16,15 @@ int init_geometry_pass(geometry_pass *g_pass)
     GLuint vs, fs;
     compile_shader(&vs, "./src/shader/geometry.vs", GL_VERTEX_SHADER);
     compile_shader(&fs, "./src/shader/geometry.fs", GL_FRAGMENT_SHADER);
-    // 프로그램 입력 변수에 속성 번호 지정
     g_pass->shader_program = glCreateProgram();
+    // 프로그램 입력 변수에 속성 번호 지정
     glBindAttribLocation(g_pass->shader_program, 0, "in_position");
     glBindAttribLocation(g_pass->shader_program, 1, "in_normal");
-		printf("%d\n", glGetError());
 	// 프로그램 출력 변수에 컬러 버퍼 번호 지정
-	// glBindFragDataLocation(g_pass->shader_program, 0, "g_position"); // 바인딩된 fbo의 0번째 첨부물을 g_position 변수에 바인딩
-	// glBindFragDataLocation(g_pass->shader_program, 1, "g_normal"); // 바인딩된 fbo의 1번째 첨부물을 g_normal 변수에 바인딩
-	// glBindFragDataLocation(g_pass->shader_program, 2, "g_albedo"); // 바인딩된 fbo의 2번째 첨부물을 g_albedo 변수에 바인딩
+	glBindFragDataLocation(g_pass->shader_program, 0, "g_position"); // 바인딩된 fbo의 0번째 첨부물을 g_position 변수에 바인딩
+	glBindFragDataLocation(g_pass->shader_program, 1, "g_normal"); // 바인딩된 fbo의 1번째 첨부물을 g_normal 변수에 바인딩
+	glBindFragDataLocation(g_pass->shader_program, 2, "g_albedo"); // 바인딩된 fbo의 2번째 첨부물을 g_albedo 변수에 바인딩
+	// glBindFragDataLocation(g_pass->shader_program, 0, "FinalColor"); // 바인딩된 fbo의 0번째 첨부물을 g_position 변수에 바인딩
     if (link_shaders(g_pass->shader_program, vs, fs) == -1)
 	{
 		fprintf(stderr, "Something wrong during make shader program\n");
@@ -41,6 +41,11 @@ int init_geometry_pass(geometry_pass *g_pass)
     glBindTexture(GL_TEXTURE_2D, g_pass->fbo_position);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIN_WIDTH, WIN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_pass->fbo_position, 0);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     // g_normal 텍스처 생성 및 첨부
     glGenTextures(1, &g_pass->fbo_normal);
@@ -48,11 +53,21 @@ int init_geometry_pass(geometry_pass *g_pass)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIN_WIDTH, WIN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g_pass->fbo_normal, 0);
 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
     // g_albedo 텍스처 생성 및 첨부
     glGenTextures(1, &g_pass->fbo_albedo);
     glBindTexture(GL_TEXTURE_2D, g_pass->fbo_albedo);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIN_WIDTH, WIN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, g_pass->fbo_albedo, 0);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     // G-Buffer에 깊이 버퍼 첨부 (텍스처가 아닌 RenderBuffer이다.)
     GLuint fbo_depth;
