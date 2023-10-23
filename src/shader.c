@@ -46,19 +46,18 @@ int compile_shader(GLuint *shader, char *path, int type)
     return (0);
 }
 
-int link_shaders(GLuint *program, GLuint vs, GLuint fs)
+int link_shaders(GLuint program, GLuint vs, GLuint fs)
 {
-    *program = glCreateProgram();
-    glAttachShader(*program, vs);
-    glAttachShader(*program, fs);
-    glLinkProgram(*program);
+    glAttachShader(program, vs);
+    glAttachShader(program, fs);
+    glLinkProgram(program);
 
     // 에러 체크
     GLint success;
-    glGetProgramiv(*program, GL_LINK_STATUS, &success);
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (!success) {
         GLchar infoLog[512];
-        glGetProgramInfoLog(*program, 512, NULL, infoLog);
+        glGetProgramInfoLog(program, 512, NULL, infoLog);
         fprintf(stderr, "쉐이더 프로그램 링크 에러: %s\n", infoLog);
         return (-1);
     }
