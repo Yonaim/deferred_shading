@@ -6,15 +6,14 @@ in vec3 pos; // 프래그먼트 위치좌표 (World Space)
 in vec3 normal; // 프래그먼트 법선벡터 (World Space)
 
 out vec3 FragColor;
-out vec3 g_position; // g-buffer에 저장하는 position
-out vec3 g_normal;   // g-buffer에 저장하는 normal
-out vec3 g_albedo;   // g-buffer에 저장하는 albedo
+// out vec3 g_position; // g-buffer에 저장하는 position
+// out vec3 g_normal;   // g-buffer에 저장하는 normal
+// out vec3 g_albedo;   // g-buffer에 저장하는 albedo
 
 void main()
 {
-    g_position = pos;
-    g_normal = normal;
-    g_albedo = vec3(0, 0, 1);
-
-    FragColor = vec3(0, 1, 0);
+    // g_position = pos;
+    // g_normal = normal;
+    // g_albedo = vec3(0, 0, 1);
+    FragColor = vec3(1,1,1);
 }

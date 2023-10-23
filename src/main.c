@@ -69,11 +69,11 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 // 지오메트리 패스
-        glBindFramebuffer(GL_FRAMEBUFFER, g_pass.fbo);
+        // glBindFramebuffer(GL_FRAMEBUFFER, g_pass.fbo);
         glUseProgram(g_pass.shader_program);
         // uniform 설정
 		model(model_v, vec3(0, 0, 0), vec3(0, 0, 0), vec3(1, 1, 1)); 
-		view(view_v, vec3(0, 0, -3), vec3(0, 0, -1)); 
+		view(view_v, vec3(0, 1, -3), vec3(0, 0, -1)); 
 		projection(proj_v, 1, 0.1, 100); 
 		glUniformMatrix4fv(glGetUniformLocation(g_pass.shader_program, "model"), 1, GL_FALSE, model_v);
 		glUniformMatrix4fv(glGetUniformLocation(g_pass.shader_program, "view"), 1, GL_FALSE, view_v);
@@ -84,32 +84,27 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 // 라이팅 패스
-        glBindFramebuffer(GL_FRAMEBUFFER, 0); // 일단 디폴트 프레임 버퍼에 그림
-        glUseProgram(l_pass.shader_program);
-
-        // uniform 설정
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, g_pass.fbo_position);
-        glUniform1i(glGetUniformLocation(l_pass.shader_program, "g_position"), 0);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, g_pass.fbo_normal);
-        glUniform1i(glGetUniformLocation(l_pass.shader_program, "g_normal"), 1);
-        
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, g_pass.fbo_albedo);
-        glUniform1i(glGetUniformLocation(l_pass.shader_program, "g_albedo"), 2);
-
-        glUniform3f(glGetUniformLocation(l_pass.shader_program, "ambient"), 0, 0, 0);
-		glUniform3f(glGetUniformLocation(l_pass.shader_program, "camera_pos"), 0, 0, 0);
-		glUniform3f(glGetUniformLocation(l_pass.shader_program, "light_pos"), 0, 0, 0);
-		glUniform3f(glGetUniformLocation(l_pass.shader_program, "light_color"), 1, 1, 1);
-
-        // vao 바인드
-        glBindVertexArray(quad_vao);
-		// fbo에 draw
-		// 디폴트 프레임버퍼 그 자체가 창이므로 draw하기만 하면 끝 (별도의 함수호출필요x)
-		glDrawArrays(GL_TRIANGLES, 0, 12);
+        // glBindFramebuffer(GL_FRAMEBUFFER, 0); // 일단 디폴트 프레임 버퍼에 그림
+        // glUseProgram(l_pass.shader_program);
+        // // uniform 설정
+        // glActiveTexture(GL_TEXTURE0);
+        // glBindTexture(GL_TEXTURE_2D, g_pass.fbo_position);
+        // glUniform1i(glGetUniformLocation(l_pass.shader_program, "g_position"), 0);
+        // glActiveTexture(GL_TEXTURE1);
+        // glBindTexture(GL_TEXTURE_2D, g_pass.fbo_normal);
+        // glUniform1i(glGetUniformLocation(l_pass.shader_program, "g_normal"), 1);
+        // glActiveTexture(GL_TEXTURE2);
+        // glBindTexture(GL_TEXTURE_2D, g_pass.fbo_albedo);
+        // glUniform1i(glGetUniformLocation(l_pass.shader_program, "g_albedo"), 2);
+        // glUniform3f(glGetUniformLocation(l_pass.shader_program, "ambient"), 0, 0, 0);
+		// glUniform3f(glGetUniformLocation(l_pass.shader_program, "camera_pos"), 0, 0, 0);
+		// glUniform3f(glGetUniformLocation(l_pass.shader_program, "light_pos"), 0, 0, 0);
+		// glUniform3f(glGetUniformLocation(l_pass.shader_program, "light_color"), 1, 1, 1);
+        // // vao 바인드
+        // glBindVertexArray(quad_vao);
+		// // fbo에 draw
+		// // 디폴트 프레임버퍼 그 자체가 창이므로 draw하기만 하면 끝 (별도의 함수호출필요x)
+		// glDrawArrays(GL_TRIANGLES, 0, 12);
 
         // 프레임 스와핑 및 이벤트 처리
 		glfwSwapBuffers(window);
