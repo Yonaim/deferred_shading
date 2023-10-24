@@ -68,7 +68,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 // 지오메트리 패스
-		// glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
 		geometry_pass_draw(&g_pass, &cube_vao, true);
 
 // 라이팅 패스
