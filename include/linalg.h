@@ -1,5 +1,5 @@
 #ifndef LINALG_H
-# define LINALG_H
+#define LINALG_H
 
 # include <math.h>
 
