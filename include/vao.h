@@ -17,5 +17,6 @@ typedef struct s_vao
 
 void vao_init_quad(t_vao *vao_ptr);
 void vao_init_cube(t_vao *vao_ptr);
+void vao_init_triangle(t_vao *vao_ptr);
 
 #endif

@@ -9,6 +9,9 @@
 #include "linalg.h"
 #include "vao.h"
 
+extern t_vec3 camera_pos;
+extern t_vec3 camera_rot;
+
 /*
 1. 쉐이더 프로그램 컴파일
 2. FBO(G-Buffer) 생성 (position, normal, albedo, depth)
@@ -111,8 +114,8 @@ int geometry_pass_draw(const t_geometry_pass *g_pass, const t_vao *vao, bool is_
     // 유니폼 값 세팅
     float model_v[16], view_v[16], proj_v[16];
     model(model_v, vec3(0, 0, 0), vec3(0, 0, 0), vec3(1, 1, 1)); 
-    view(view_v, vec3(1, 1, -3), vec3(0, 0, 0)); 
-    projection(proj_v, 1, 0.1, 100);
+    view(view_v, camera_pos, camera_rot); 
+    projection(proj_v, (float)WIN_WIDTH / WIN_HEIGHT, 0.1, 100);
     glUniformMatrix4fv(glGetUniformLocation(g_pass->shader_program, "model"), 1, GL_FALSE, model_v);
     glUniformMatrix4fv(glGetUniformLocation(g_pass->shader_program, "view"), 1, GL_FALSE, view_v);
     glUniformMatrix4fv(glGetUniformLocation(g_pass->shader_program, "projection"), 1, GL_FALSE, proj_v);
@@ -120,4 +123,5 @@ int geometry_pass_draw(const t_geometry_pass *g_pass, const t_vao *vao, bool is_
     // 드로잉
     glBindVertexArray(vao->id);
     glDrawArrays(GL_TRIANGLES, 0, vao->vertices_cnt);
+    return (0);
 }

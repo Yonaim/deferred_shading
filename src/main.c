@@ -12,6 +12,9 @@
 #include "vao.h"
 #include "settings.h"
 
+t_vec3 camera_pos = (t_vec3){1, 1, -3};
+t_vec3 camera_rot = (t_vec3){DEG_TO_RAD(30), 0, 0};
+
 int start_opengl(GLFWwindow **window_ptr)
 {
 	glfwInit();
@@ -50,13 +53,15 @@ int main()
     lighting_pass_init(&l_pass);
 	l_pass.g_pass = &g_pass;
 
-	t_vao cube_vao, quad_vao;
+	t_vao tri_vao, cube_vao, quad_vao;
+	// vao_init_triangle(&tri_vao);
 	vao_init_cube(&cube_vao);
     vao_init_quad(&quad_vao);
 
 	glClearDepth(1.0f);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	// glFrontFace(GL_CW);
+	glEnable(GL_DEPTH_TEST);
+	// glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CCW);
 
 // 렌더링 루프
 	// 각 VAO들이 기하 패스를 모두 거치게끔 하여 g-buffer에 데이터를 쌓은 후 라이팅 패스를 거치도록한다
@@ -64,11 +69,10 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClearColor(0.0, 0.0, 1.0, 1.0);
+		glClearColor(1.0, 1.0, 1.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 // 지오메트리 패스
-		glEnable(GL_DEPTH_TEST);
 		geometry_pass_draw(&g_pass, &cube_vao, true);
 
 // 라이팅 패스

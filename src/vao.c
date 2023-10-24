@@ -8,7 +8,7 @@ static void init_vbo_cube(GLuint *vbo_pos, GLuint *vbo_normal)
 	// TODO: EBO 적용하여 버텍스 수 24개로 줄이기
 	float positions[] = {
     // 옆면1 (정면)
-    -0.5f, -0.5f, 0.5f,
+    0.5f, 0.5f, -0.5f,
     -0.5f, 0.5f, -0.5f,
     -0.5f, -0.5f, -0.5f,
     0.5f, 0.5f, -0.5f,
@@ -32,12 +32,12 @@ static void init_vbo_cube(GLuint *vbo_pos, GLuint *vbo_normal)
     -0.5f, -0.5f, 0.5f,
 
     // 옆면4 (좌측)
-    -0.5f, 0.5f, 0.5f,
     -0.5f, 0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
     -0.5f, 0.5f, 0.5f,
     -0.5f, -0.5f, -0.5f,
+    -0.5f, 0.5f, 0.5f,
     -0.5f, -0.5f, 0.5f,
+    -0.5f, -0.5f, -0.5f,
 
     // 윗면
     -0.5f, 0.5f, 0.5f,
@@ -54,16 +54,19 @@ static void init_vbo_cube(GLuint *vbo_pos, GLuint *vbo_normal)
     -0.5f, -0.5f, 0.5f,
     0.5f, -0.5f, 0.5f,
     0.5f, -0.5f, -0.5f,
+
 	};
 
 	float normals[] = {
+
+
     0.0f,  0.0f, -1.0f,
     0.0f,  0.0f, -1.0f, 
     0.0f,  0.0f, -1.0f, 
     0.0f,  0.0f, -1.0f, 
     0.0f,  0.0f, -1.0f, 
     0.0f,  0.0f, -1.0f, 
-
+    
     1.0f,  0.0f,  0.0f,
     1.0f,  0.0f,  0.0f,
     1.0f,  0.0f,  0.0f,
@@ -98,6 +101,7 @@ static void init_vbo_cube(GLuint *vbo_pos, GLuint *vbo_normal)
     0.0f, -1.0f,  0.0f,
     0.0f, -1.0f,  0.0f,
     0.0f, -1.0f,  0.0f,
+
 	};
 
 	glGenBuffers(1, vbo_pos);
@@ -153,4 +157,41 @@ void vao_init_quad(t_vao *vao_ptr)
 
 	vao_ptr->id = vao;
 	vao_ptr->vertices_cnt = 12;
+}
+
+void vao_init_triangle(t_vao *vao_ptr)
+{
+	float positions[] = {
+        0.0f, 0.0f, 1.0f,
+        -1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f
+	};
+	float normals[] = {
+        0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f
+	};
+
+    GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	
+    GLuint vbo_pos, vbo_normal;
+	glGenBuffers(1, &vbo_pos);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_pos);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &vbo_normal);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_normal);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_pos);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void *)0);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_normal);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, sizeof(float) * 3, (void *)0);
+
+	vao_ptr->id = vao;
+	vao_ptr->vertices_cnt = 3;
 }
