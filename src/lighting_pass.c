@@ -3,9 +3,12 @@
 
 #include <stdio.h>
 #include "pass.h"
+#include "linalg.h"
 #include "shader.h"
 #include "settings.h"
 #include "vao.h"
+
+extern t_vec3 camera_pos;
 
 int lighting_pass_init(t_lighting_pass *l_pass)
 {
@@ -44,8 +47,8 @@ int lighting_pass_draw(const t_lighting_pass *l_pass, const t_vao *vao)
     glBindTexture(GL_TEXTURE_2D, l_pass->g_pass->fbo_albedo);
     glUniform1i(glGetUniformLocation(l_pass->shader_program, "g_albedo"), 2);
 
-    glUniform3f(glGetUniformLocation(l_pass->shader_program, "ambient"), 0, 0, 0);
-    glUniform3f(glGetUniformLocation(l_pass->shader_program, "camera_pos"), 0, 0, 0);
+    glUniform3f(glGetUniformLocation(l_pass->shader_program, "ambient"), 0.1f, 0.1f, 0.1f);
+    glUniform3f(glGetUniformLocation(l_pass->shader_program, "camera_pos"), camera_pos.x, camera_pos.y, camera_pos.z);
     glUniform3f(glGetUniformLocation(l_pass->shader_program, "light_pos"), 0, 0, 0);
     glUniform3f(glGetUniformLocation(l_pass->shader_program, "light_color"), 1, 1, 1);
 

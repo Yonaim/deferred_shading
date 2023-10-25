@@ -13,7 +13,7 @@
 #include "settings.h"
 
 t_vec3 camera_pos = (t_vec3){1, 1, -3};
-t_vec3 camera_rot = (t_vec3){DEG_TO_RAD(30), 0, 0};
+t_vec3 camera_rot = (t_vec3){0, 0, 0};
 
 int start_opengl(GLFWwindow **window_ptr)
 {
@@ -59,7 +59,6 @@ int main()
     vao_init_quad(&quad_vao);
 
 	glClearDepth(1.0f);
-	glEnable(GL_DEPTH_TEST);
 	// glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 
@@ -73,10 +72,12 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 // 지오메트리 패스
-		geometry_pass_draw(&g_pass, &cube_vao, true);
+		glEnable(GL_DEPTH_TEST);
+		geometry_pass_draw(&g_pass, &cube_vao, false);
 
 // 라이팅 패스
-		// lighting_pass_draw(&l_pass, &quad_vao);
+		glDisable(GL_DEPTH_TEST);
+		lighting_pass_draw(&l_pass, &quad_vao);
 
         // 프레임 스와핑 및 이벤트 처리
 		glfwSwapBuffers(window);

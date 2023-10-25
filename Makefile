@@ -3,7 +3,7 @@ NAME			=	deferred_shading
 # **************************** COMPILER SETTINGS ***************************** #
 
 CC				=	gcc
-CFLAGS			=	-Wall -Wextra -Werror -MMD -MP
+# CFLAGS			=	-Wall -Wextra -Werror -MMD -MP
 CPPFLAGS		=	-I./include
 LDFLAGS			=	-framework OpenGL -framework Appkit -framework IOKit
 LDLIBS			=	
